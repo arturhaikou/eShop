@@ -17,6 +17,10 @@ var identityDb = postgres.AddDatabase("identitydb");
 var orderDb = postgres.AddDatabase("orderingdb");
 var webhooksDb = postgres.AddDatabase("webhooksdb");
 
+var mongo = builder.AddMongoDB("mongo")
+    .WithLifetime(ContainerLifetime.Persistent);
+var mongodb = mongo.AddDatabase("mongodb");
+
 var launchProfileName = ShouldUseHttpForEndpoints() ? "http" : "https";
 
 // Services
@@ -35,6 +39,9 @@ redis.WithParentRelationship(basketApi);
 var catalogApi = builder.AddProject<Projects.Catalog_API>("catalog-api")
     .WithReference(rabbitMq).WaitFor(rabbitMq)
     .WithReference(catalogDb);
+
+var couponApi = builder.AddProject<Projects.Coupon_API>("coupon-api")
+    .WithReference(mongodb).WaitFor(mongodb);
 
 var orderingApi = builder.AddProject<Projects.Ordering_API>("ordering-api")
     .WithReference(rabbitMq).WaitFor(rabbitMq)
